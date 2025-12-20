@@ -25,17 +25,21 @@ struct TripChecklistView: View {
     
     var body: some View {
         ZStack {
-            Color("bgColor")
+            Image("menuBG")
+                .resizable()
+                .scaledToFill()
                 .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
-                ZStack(alignment: .top) {
-                    Image("bigTopFrame")
+                ZStack(alignment: .bottom) {
+                    Image("topFrame")
                         .resizable()
-                        .scaledToFit()
-                        .frame(width: screenWidth)
+                        .scaledToFill()
+                        .frame(width: screenWidth, height: screenHeight * 0.16)
+                        .clipped()
+                        .ignoresSafeArea()
                     
-                    VStack(alignment: .leading, spacing: screenHeight * 0.015) {
+                    VStack(alignment: .leading, spacing: screenHeight * 0.01) {
                         HStack {
                             Button(action: {
                                 dismiss()
@@ -45,25 +49,20 @@ struct TripChecklistView: View {
                                     .scaledToFit()
                                     .frame(height: screenHeight * 0.025)
                             }
+                            
                             Spacer()
-                        }
-                        .padding(.top, screenHeight * 0.06)
-                        
-                        Text(tripManager.currentTrip?.tripTypeName ?? "My Trip")
-                            .font(.custom("Inter-Medium", size: screenHeight * 0.026))
-                            .foregroundColor(.white)
-                        
-                        HStack {
-                            Text("Progress")
-                                .font(.custom("Inter-Regular", size: screenHeight * 0.016))
-                                .foregroundColor(.gray)
+                            
+                            Text(tripManager.currentTrip?.tripTypeName ?? "My Trip")
+                                .font(.custom("Inter-Medium", size: screenHeight * 0.022))
+                                .foregroundColor(.white)
                             
                             Spacer()
                             
                             Text("\(checkedCount)/\(totalCount)")
                                 .font(.custom("Inter-Medium", size: screenHeight * 0.016))
-                                .foregroundColor(.progressYellow)
+                                .foregroundColor(Color("progressYellow"))
                         }
+                        .padding(.bottom)
                         
                         ZStack(alignment: .leading) {
                             Image("progressBar")
@@ -78,7 +77,9 @@ struct TripChecklistView: View {
                         }
                     }
                     .padding(.horizontal, screenWidth * 0.05)
+                    .padding(.bottom, screenHeight * 0.03)
                 }
+                .frame(height: screenHeight * 0.16)
                 
                 if tripManager.currentTrip?.checklistItems.isEmpty ?? true {
                     Spacer()
