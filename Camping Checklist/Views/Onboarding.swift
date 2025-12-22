@@ -27,7 +27,7 @@ struct Onboarding: View {
                 HStack {
                     Spacer()
                     Button(action: {
-                        nav.currentScreen = .MAIN
+                        nav.completeOnboarding()
                     }) {
                         Image("skipButton")
                             .resizable()
@@ -126,7 +126,7 @@ struct Onboarding: View {
                         }
                         
                         Button(action: {
-                            nav.currentScreen = .MAIN
+                            nav.completeOnboarding()
                         }) {
                             Image("shortGetStarted")
                                 .resizable()

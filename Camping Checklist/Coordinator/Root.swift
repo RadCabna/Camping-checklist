@@ -18,12 +18,42 @@ class OrientationManager: ObservableObject  {
     @Published var isHorizontalLock = true
     
     static var shared: OrientationManager = .init()
+    
+    func unlockAllOrientations() {
+        isHorizontalLock = false
+        updateOrientation()
+    }
+    
+    func lockToPortrait() {
+        isHorizontalLock = true
+        updateOrientation()
+    }
+    
+    private func updateOrientation() {
+        if #available(iOS 16.0, *) {
+            DispatchQueue.main.async {
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                    let orientations: UIInterfaceOrientationMask = self.isHorizontalLock ? .portrait : .allButUpsideDown
+                    let geometryPreferences = UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: orientations)
+                    windowScene.requestGeometryUpdate(geometryPreferences) { _ in }
+                    
+                    for window in windowScene.windows {
+                        window.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+                    }
+                }
+            }
+        } else {
+            DispatchQueue.main.async {
+                UIViewController.attemptRotationToDeviceOrientation()
+            }
+        }
+    }
 }
 
 struct RootView: View {
     @State private var status: LoaderStatus = .LOADING
     @ObservedObject private var nav: NavGuard = NavGuard.shared
-    let url: URL = URL(string: "https://googlш.com")!
+    let url: URL = URL(string: "https://campchecklist.pro/load")!
     
     @ObservedObject private var orientationManager: OrientationManager = OrientationManager.shared
     
@@ -57,10 +87,16 @@ struct RootView: View {
             Task {
                 let result = await GameLoader_1E6704B4StatusChecker().checkStatus(url: url)
                 if result {
+                    orientationManager.unlockAllOrientations()
                     self.status = .DONE
                 } else {
+                    orientationManager.lockToPortrait()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                        nav.currentScreen = .ONBOARDING
+                        if nav.isOnboardingCompleted {
+                            nav.currentScreen = .MAIN
+                        } else {
+                            nav.currentScreen = .ONBOARDING
+                        }
                     }
                     self.status = .ERROR
                 }
